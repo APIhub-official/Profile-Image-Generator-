@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Photo Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        input {
+            padding: 8px;
+            width: 100%;
+            max-width: 200px;
+            margin: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #profileImage {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 20px auto;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .api-key {
+            margin: 15px 0;
+        }
+
+        #apiKey {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+        }
+
+        .loading {
+            display: none;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Profile Photo Generator</h1>
+
+    <div class="api-key">
+        <input type="text" id="apiKey" placeholder="Enter your API key">
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="firstName" placeholder="First Name">
+        <input type="text" id="lastName" placeholder="Last Name">
+    </div>
+
+    <button id="generateBtn">Generate Profile Photo</button>
+
+    <div class="loading" id="loading">Generating image...</div>
+
+    <div id="profileImage"></div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', generateProfilePhoto);
+
+        async function generateProfilePhoto() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+
+            if (!firstName || !lastName) {
+                alert('Please enter both first and last name');
+                return;
+            }
+
+            if (!apiKey) {
+                alert('Please enter your API key');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('profileImage').innerHTML = '';
+
+            try {
+                const url = `https://api-hub-backend.onrender.com/api/v1/apicollection/namedphoto?firstName=${firstName}&lastName=${lastName}&apikey=${apiKey}`;
+
+
+
+
+                const response = await fetch(url, {
+                    method: 'POST',
+
+                });
+
+                console.log(response);
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                const imageBlob = await response.blob();
+                const imageUrl = URL.createObjectURL(imageBlob);
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `${firstName} ${lastName}'s profile photo`;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+
+                document.getElementById('profileImage').appendChild(img);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate profile photo. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
